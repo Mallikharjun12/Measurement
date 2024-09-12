@@ -11,8 +11,7 @@ import ARKit
 
 
 protocol MeasurementViewControllerDelegate:AnyObject {
-    
-    func getArea(area:Float)
+    func showMessage(with title:String)
 }
 
 class MeasurementViewController: UIViewController, ARSessionDelegate {
@@ -22,8 +21,11 @@ class MeasurementViewController: UIViewController, ARSessionDelegate {
     
     weak var delegate:MeasurementViewControllerDelegate?
     
-    
+    let configuration = ARWorldTrackingConfiguration()
     var points:[SCNNode] = []
+    
+    var type:MeasurementType!
+    var planeDetection:ARWorldTrackingConfiguration.PlaneDetection!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,8 +56,8 @@ class MeasurementViewController: UIViewController, ARSessionDelegate {
         
         navigationItem.hidesBackButton = true
         
-        let configuration = ARWorldTrackingConfiguration()
-        configuration.planeDetection = .horizontal
+        
+        configuration.planeDetection = planeDetection
         if ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) {
             configuration.sceneReconstruction = .mesh
         }
@@ -77,15 +79,15 @@ class MeasurementViewController: UIViewController, ARSessionDelegate {
         let location = gestureRecognize.location(in: sceneView)
             
         // Create a raycast query for a horizontal plane
-        guard let raycastQuery = sceneView.raycastQuery(from: location, allowing: .existingPlaneInfinite, alignment: .horizontal) else {
+        guard let raycastQuery = sceneView.raycastQuery(from: location, allowing: .existingPlaneInfinite, alignment: planeDetection == .horizontal ? .horizontal : .vertical) else {
             return
         }
         
         // Perform the raycast
         let results = sceneView.session.raycast(raycastQuery)
-        
+       // SCNCylinder(radius: 0.01, height: 0.01)
         if let result = results.first {
-            let point = SCNNode(geometry: SCNCylinder(radius: 0.01, height: 0.1))
+            let point = SCNNode(geometry: SCNSphere(radius: 0.02))
                 point.geometry?.firstMaterial?.diffuse.contents = UIColor.red
                 
                 // Convert the raycast result to a position in the 3D world
@@ -107,10 +109,29 @@ class MeasurementViewController: UIViewController, ARSessionDelegate {
         let pointsMap = self.points.compactMap({ pt in
             return SIMD3(x: pt.position.x, y: pt.position.y, z: pt.position.z)
         })
-        let area = calculateArea(of: pointsMap)
+        let formatter = MeasurementFormatter()
+        formatter.unitOptions = .providedUnit
+        var str = ""
+        switch type {
+        case .length:
+            let lengthInMetres = calculateLength(between: pointsMap)
+            let lengthInFeet = lengthInMetres * 3.28
+            let measurement = Measurement(value: Double(lengthInFeet), unit: UnitLength.feet)
+            
+            str = "Length between the points: \(formatter.string(from: measurement))"
+            
+        case .area:
+            let areaInsqm = calculateArea(of: pointsMap)
+            let areaInsqFt = areaInsqm * 10.76
+            let measurement = Measurement(value: Double(areaInsqFt), unit: UnitArea.squareFeet)
+            
+            str = "Enclosed area between points: \(formatter.string(from: measurement))"
+        default:
+            break
+        }
         navigationController?.popViewController(animated: true)
-        delegate?.getArea(area: area)
-        print("Area calculated using Mtk:- \(area)")
+        delegate?.showMessage(with: str)
+        
     }
     
     
@@ -133,15 +154,49 @@ class MeasurementViewController: UIViewController, ARSessionDelegate {
         var area: Float = 0
         let n = points.count
         
-        for i in 0..<n {
-            let point1 = points[i]
-            let point2 = points[(i + 1) % n]
-            
-            // Using the Shoelace formula to calculate the area of the polygon
-            area += (point1.x * point2.z) - (point1.z * point2.x)
+        switch self.planeDetection {
+        case .horizontal:
+            for i in 0..<n {
+                let point1 = points[i]
+                let point2 = points[(i + 1) % n]
+                
+                // Using the Shoelace formula to calculate the area of the polygon
+                area += (point1.x * point2.z) - (point1.z * point2.x)
+            }
+            print("horizontal area:- \(area)")
+        case .vertical:
+            for i in 0..<n {
+                let point1 = points[i]
+                let point2 = points[(i + 1) % n]
+                
+                // Using the Shoelace formula to calculate the area of the polygon
+                area += (point1.x * point2.y) - (point1.y * point2.x)
+            }
+            print("vertical area:- \(area)")
+        default:
+            break
         }
         
         return abs(area / 2.0)
+    }
+    
+    func calculateLength(between points:[SIMD3<Float>]) -> Float {
+        guard points.count == 2 else {
+            return 0
+        }
+        
+        var length:Float = 0
+        switch self.planeDetection {
+        case .horizontal:
+            length = sqrt(pow(points[0].x - points[1].x, 2) + pow(points[0].z - points[1].z, 2))
+            print("horizontal length:- \(length)")
+        case .vertical:
+            length = sqrt(pow(points[0].x - points[1].x, 2) + pow(points[0].y - points[1].y, 2))
+            print("vertical length:- \(length)")
+        default:
+           break
+        }
+        return length
     }
 }
 
@@ -171,7 +226,11 @@ extension MeasurementViewController: ARSCNViewDelegate {
         let gridMaterial = SCNMaterial()
         
         
-        gridMaterial.diffuse.contents = UIImage(named: "grid")
+        if planeDetection == .horizontal {
+            gridMaterial.diffuse.contents = UIImage(named: "grid")
+        } else {
+            gridMaterial.diffuse.contents = UIColor.green.withAlphaComponent(0.75)
+        }
         
         plane.materials = [gridMaterial]
         

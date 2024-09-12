@@ -16,31 +16,10 @@
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Cy-iq-rAV">
-                                <rect key="frame" x="196.66666666666666" y="426" width="0.0" height="0.0"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="0Cy-iq-rAV" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Oxq-k3-UZ8"/>
-                            <constraint firstItem="0Cy-iq-rAV" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ceo-Nd-bCA"/>
-                        </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="0eH-RQ-fF2">
-                        <barButtonItem key="rightBarButtonItem" title="Item" image="square.and.pencil" catalog="system" id="nzk-et-8aU">
-                            <connections>
-                                <action selector="compose:" destination="BYZ-38-t0r" id="wdc-m0-kDa"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
-                    <connections>
-                        <outlet property="label" destination="0Cy-iq-rAV" id="ZjS-Cw-Har"/>
-                    </connections>
+                    <navigationItem key="navigationItem" id="0eH-RQ-fF2"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
@@ -97,7 +76,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="square.and.pencil" catalog="system" width="128" height="121"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
