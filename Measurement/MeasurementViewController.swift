@@ -44,19 +44,20 @@ class MeasurementViewController: UIViewController, ARSessionDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        let doneBtn = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneTapped))
+        let doneBtn = UIBarButtonItem(barButtonSystemItem: .done,
+                                      target: self,
+                                      action: #selector(doneTapped))
         
-        let removeBtn = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(removeTapped))
+        let removeBtn = UIBarButtonItem(image: UIImage(systemName: "minus.circle.fill"),
+                                        style: .done,
+                                        target: self,
+                                        action: #selector(removeTapped))
         
         navigationItem.rightBarButtonItems = [doneBtn,removeBtn]
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        navigationItem.hidesBackButton = true
-        
-        
         configuration.planeDetection = planeDetection
         if ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) {
             configuration.sceneReconstruction = .mesh
@@ -226,11 +227,11 @@ extension MeasurementViewController: ARSCNViewDelegate {
         let gridMaterial = SCNMaterial()
         
         
-        if planeDetection == .horizontal {
+ //       if planeDetection == .horizontal {
             gridMaterial.diffuse.contents = UIImage(named: "grid")
-        } else {
-            gridMaterial.diffuse.contents = UIColor.green.withAlphaComponent(0.75)
-        }
+//        } else {
+//            gridMaterial.diffuse.contents = UIColor.green.withAlphaComponent(0.75)
+//        }
         
         plane.materials = [gridMaterial]
         

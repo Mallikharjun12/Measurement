@@ -19,23 +19,32 @@ class ViewController: UIViewController, MeasurementViewControllerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         createButtons()
     }
     
     func createButtons() {
-        var height:CGFloat = 100
+        var height:CGFloat = 50
         for i in 0..<buttonTitles.count {
             let btn = UIButton(type: .system)
+            btn.translatesAutoresizingMaskIntoConstraints = false
             btn.setTitle(buttonTitles[i], for: .normal)
             btn.tag = i
             btn.addTarget(self, action: #selector(buttonTapped(sender: )), for: .touchUpInside)
             view.addSubview(btn)
-            btn.frame = CGRect(x: 25, y: height, width: view.frame.width-50, height: 52)
-            height += 52+16
+            
             btn.backgroundColor = .link
             btn.tintColor = .label
             btn.layer.cornerRadius = 12
+            btn.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+            btn.titleLabel?.adjustsFontForContentSizeCategory = true
+            
+            NSLayoutConstraint.activate([
+                btn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 30),
+                btn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -30),
+                btn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: height),
+                btn.heightAnchor.constraint(equalToConstant: 52)
+            ])
+            height += 52+16
         }
     }
     
@@ -53,6 +62,7 @@ class ViewController: UIViewController, MeasurementViewControllerDelegate {
         } else {
             vc.type = .area
         }
+        vc.navigationItem.hidesBackButton = false
         navigationController?.pushViewController(vc, animated: true)
     }
     
